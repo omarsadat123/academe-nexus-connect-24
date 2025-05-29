@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signInAnonymously, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
+import { signInAnonymously, signOut as firebaseSignOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { getUser, createUser, updateUser, getAllUsers } from '../services/firestore';
 import { User, AuthContextType } from '../types';
@@ -23,9 +23,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthError(null);
       const result = await signInAnonymously(auth);
       setCurrentUser(result.user);
-      return result;
+      return;
     } catch (error: any) {
       console.error('Error signing in:', error);
+      setAuthError(error.message || 'Authentication failed');
+      throw error;
+    }
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      setAuthError(null);
+      let result;
+      try {
+        // Try to sign in first
+        result = await signInWithEmailAndPassword(auth, email, password);
+      } catch (signInError: any) {
+        if (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/invalid-credential') {
+          // If user doesn't exist, create account
+          result = await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          throw signInError;
+        }
+      }
+      setCurrentUser(result.user);
+      return;
+    } catch (error: any) {
+      console.error('Error signing in with email:', error);
       setAuthError(error.message || 'Authentication failed');
       throw error;
     }
@@ -101,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       currentUser, 
       loading, 
       signIn, 
+      signInWithEmail,
       signOut, 
       switchAccount,
       authError

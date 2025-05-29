@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Dashboard from './Dashboard';
 import CoursesPage from './CoursesPage';
@@ -11,18 +12,31 @@ import CourseDetailPage from './CourseDetailPage';
 import AccountSwitcherModal from './AccountSwitcherModal';
 
 const CanvasApp = () => {
-  const { user, loading, signIn, signOut, authError } = useAuth();
+  const { user, loading, signIn, signInWithEmail, signOut, authError } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [attemptingLogin, setAttemptingLogin] = useState(false);
+  const [email, setEmail] = useState('test@university.edu');
+  const [password, setPassword] = useState('password123');
 
-  const handleManualLogin = async () => {
+  const handleEmailLogin = async () => {
+    setAttemptingLogin(true);
+    try {
+      await signInWithEmail(email, password);
+    } catch (error) {
+      console.error('Email login failed:', error);
+    } finally {
+      setAttemptingLogin(false);
+    }
+  };
+
+  const handleAnonymousLogin = async () => {
     setAttemptingLogin(true);
     try {
       await signIn();
     } catch (error) {
-      console.error('Manual login failed:', error);
+      console.error('Anonymous login failed:', error);
     } finally {
       setAttemptingLogin(false);
     }
@@ -59,12 +73,44 @@ const CanvasApp = () => {
           )}
           
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button 
+                onClick={handleEmailLogin}
+                disabled={attemptingLogin}
+                className="w-full"
+              >
+                {attemptingLogin ? 'Signing In...' : 'Sign In with Email'}
+              </Button>
+            </div>
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+            
             <Button 
-              onClick={handleManualLogin}
+              onClick={handleAnonymousLogin}
               disabled={attemptingLogin}
+              variant="outline"
               className="w-full"
             >
-              {attemptingLogin ? 'Signing In...' : 'Enter Demo Mode'}
+              {attemptingLogin ? 'Signing In...' : 'Demo Mode (Anonymous)'}
             </Button>
             
             <div className="text-xs text-muted-foreground">

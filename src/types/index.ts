@@ -76,6 +76,7 @@ export interface AuthContextType {
   loading: boolean;
   authError?: string | null;
   signIn: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   switchAccount: (role: 'student' | 'faculty' | 'admin', displayName: string) => Promise<void>;
 }
