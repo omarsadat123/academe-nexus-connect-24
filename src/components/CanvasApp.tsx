@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Dashboard from './Dashboard';
 import CoursesPage from './CoursesPage';
 import AnnouncementsPage from './AnnouncementsPage';
@@ -10,10 +11,22 @@ import CourseDetailPage from './CourseDetailPage';
 import AccountSwitcherModal from './AccountSwitcherModal';
 
 const CanvasApp = () => {
-  const { user, loading, signIn, signOut } = useAuth();
+  const { user, loading, signIn, signOut, authError } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
+  const [attemptingLogin, setAttemptingLogin] = useState(false);
+
+  const handleManualLogin = async () => {
+    setAttemptingLogin(true);
+    try {
+      await signIn();
+    } catch (error) {
+      console.error('Manual login failed:', error);
+    } finally {
+      setAttemptingLogin(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -29,12 +42,40 @@ const CanvasApp = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
+        <div className="max-w-md mx-auto text-center space-y-6 p-6">
           <h1 className="text-3xl font-bold">University Canvas</h1>
-          <p className="text-muted-foreground">Authentication Required</p>
-          <Button onClick={signIn}>
-            Force Login for Preview
-          </Button>
+          <p className="text-muted-foreground">Welcome to the University Learning Management System</p>
+          
+          {authError && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Authentication Error: {authError}
+                <br />
+                <small className="text-xs">
+                  Note: This is a demo app. Firebase configuration may need to be set up for full functionality.
+                </small>
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="space-y-4">
+            <Button 
+              onClick={handleManualLogin}
+              disabled={attemptingLogin}
+              className="w-full"
+            >
+              {attemptingLogin ? 'Signing In...' : 'Enter Demo Mode'}
+            </Button>
+            
+            <div className="text-xs text-muted-foreground">
+              <p>Demo Mode Features:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>View sample courses and announcements</li>
+                <li>Test role-based permissions</li>
+                <li>Experience the full UI without Firebase</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     );

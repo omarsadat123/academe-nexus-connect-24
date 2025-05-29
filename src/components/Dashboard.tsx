@@ -4,9 +4,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Book, Bell, Users } from 'lucide-react';
-import { getAnnouncements, getAllCourses, getEnrollmentsByStudent } from '../services/firestore';
-import { Course, Announcement, Enrollment } from '../types';
+import { 
+  BookOpen, 
+  Users, 
+  MessageSquare, 
+  Calendar,
+  GraduationCap,
+  Bell
+} from 'lucide-react';
+import { getEnrollmentsByStudent, getAllCourses, getAnnouncements } from '../services/firestore';
+import { Course, Enrollment, Announcement } from '../types';
 
 interface DashboardProps {
   onNavigate: (page: string, courseId?: string) => void;
@@ -14,9 +21,8 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { user } = useAuth();
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
   const [recentAnnouncements, setRecentAnnouncements] = useState<Announcement[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,31 +30,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       if (!user) return;
 
       try {
-        // Load courses based on role
-        const allCourses = await getAllCourses();
-        
-        let relevantCourseIds: string[] = [];
-        let userCourses: Course[] = [];
-
-        if (user.role === 'student') {
-          const userEnrollments = await getEnrollmentsByStudent(user.userId);
-          setEnrollments(userEnrollments);
-          relevantCourseIds = userEnrollments.map(e => e.courseId);
-          userCourses = allCourses.filter(course => relevantCourseIds.includes(course.id));
-        } else if (user.role === 'faculty') {
-          userCourses = allCourses.filter(course => course.instructorId === user.userId);
-          relevantCourseIds = userCourses.map(course => course.id);
-        } else {
-          userCourses = allCourses;
-          relevantCourseIds = allCourses.map(course => course.id);
-        }
-
-        setCourses(userCourses);
-
         // Load recent announcements
-        const announcements = await getAnnouncements(user.role, relevantCourseIds);
+        const announcements = await getAnnouncements(user.id, user.role);
         setRecentAnnouncements(announcements.slice(0, 5));
 
+        // Load enrolled courses for students
+        if (user.role === 'student') {
+          const enrollments = await getEnrollmentsByStudent(user.id);
+          const allCourses = await getAllCourses();
+          const enrolledCourseIds = enrollments.map(e => e.courseId);
+          const userCourses = allCourses.filter(course => 
+            enrolledCourseIds.includes(course.id)
+          );
+          setEnrolledCourses(userCourses);
+        }
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -59,171 +54,221 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     loadDashboardData();
   }, [user]);
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-muted rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return <div>Please sign in to view your dashboard.</div>;
   }
 
-  const getRoleSpecificStats = () => {
-    switch (user?.role) {
+  if (loading) {
+    return <div>Loading dashboard...</div>;
+  }
+
+  const getRoleIcon = () => {
+    switch (user.role) {
       case 'admin':
-        return [
-          { title: 'Total Courses', value: courses.length, icon: Book },
-          { title: 'Recent Announcements', value: recentAnnouncements.length, icon: Bell },
-          { title: 'System Users', value: 'N/A', icon: Users }
-        ];
+        return <Users className="h-5 w-5" />;
       case 'faculty':
-        return [
-          { title: 'My Courses', value: courses.length, icon: Book },
-          { title: 'Recent Announcements', value: recentAnnouncements.length, icon: Bell },
-          { title: 'Students', value: 'N/A', icon: Users }
-        ];
+        return <GraduationCap className="h-5 w-5" />;
       case 'student':
-        return [
-          { title: 'Enrolled Courses', value: courses.length, icon: Book },
-          { title: 'New Announcements', value: recentAnnouncements.length, icon: Bell },
-          { title: 'Profile', value: user.displayName, icon: User }
-        ];
+        return <BookOpen className="h-5 w-5" />;
       default:
-        return [];
+        return <Users className="h-5 w-5" />;
+    }
+  };
+
+  const getRoleColor = () => {
+    switch (user.role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'faculty':
+        return 'bg-blue-100 text-blue-800';
+      case 'student':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground">
-          Welcome back, {user?.displayName}! Here's your university overview.
-        </p>
-      </div>
-
-      {/* Role and User Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Profile</CardTitle>
-          <CardDescription>Current account information</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div>
-              <p className="font-medium">{user?.displayName}</p>
-              <Badge variant="secondary" className="capitalize">
-                {user?.role}
-              </Badge>
-              <p className="text-xs text-muted-foreground mt-1">
-                User ID: {user?.userId.substring(0, 8)}...
-              </p>
-            </div>
+      {/* Welcome Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Welcome, {user.displayName}</h1>
+          <div className="flex items-center mt-2 space-x-2">
+            {getRoleIcon()}
+            <Badge className={getRoleColor()}>
+              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+            </Badge>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {getRoleSpecificStats().map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
+        </div>
       </div>
 
-      {/* Recent Announcements */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Announcements</CardTitle>
-          <CardDescription>Latest updates from your courses</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {recentAnnouncements.length > 0 ? (
-            <div className="space-y-4">
-              {recentAnnouncements.map((announcement) => (
-                <div key={announcement.id} className="border-l-4 border-primary pl-4">
-                  <p className="text-sm font-medium">{announcement.text.substring(0, 100)}...</p>
-                  <p className="text-xs text-muted-foreground">
-                    By {announcement.author} • {announcement.timestamp?.toDate?.()?.toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={() => onNavigate('announcements')}
-              >
-                View All Announcements
-              </Button>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {user.role === 'student' ? 'Enrolled Courses' : 'Total Courses'}
+            </CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {user.role === 'student' ? enrolledCourses.length : '5'}
             </div>
-          ) : (
-            <p className="text-muted-foreground">No recent announcements</p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Quick Course Access */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {user?.role === 'student' ? 'Your Courses' : 
-             user?.role === 'faculty' ? 'Teaching' : 'All Courses'}
-          </CardTitle>
-          <CardDescription>Quick access to your courses</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {courses.length > 0 ? (
-            <div className="space-y-2">
-              {courses.slice(0, 5).map((course) => (
-                <div key={course.id} className="flex items-center justify-between p-2 border rounded">
-                  <div>
-                    <p className="font-medium">{course.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Instructor: {course.instructor}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Announcements</CardTitle>
+            <Bell className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{recentAnnouncements.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Messages</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Announcements */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Announcements</CardTitle>
+            <CardDescription>Latest updates and news</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentAnnouncements.length > 0 ? (
+              <div className="space-y-4">
+                {recentAnnouncements.map((announcement) => (
+                  <div key={announcement.id} className="border-l-4 border-primary pl-4">
+                    <p className="text-sm text-muted-foreground">
+                      By {announcement.author} • {announcement.timestamp instanceof Date 
+                        ? announcement.timestamp.toLocaleDateString() 
+                        : new Date(announcement.timestamp).toLocaleDateString()}
                     </p>
+                    <p className="mt-1">{announcement.text}</p>
                   </div>
+                ))}
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => onNavigate('announcements')}
+                >
+                  View All Announcements
+                </Button>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No recent announcements</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions / Course List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {user.role === 'student' ? 'My Courses' : 'Quick Actions'}
+            </CardTitle>
+            <CardDescription>
+              {user.role === 'student' ? 'Your enrolled courses' : 'Common tasks'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {user.role === 'student' ? (
+              <div className="space-y-3">
+                {enrolledCourses.length > 0 ? (
+                  <>
+                    {enrolledCourses.map((course) => (
+                      <div 
+                        key={course.id} 
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                        onClick={() => onNavigate('course-detail', course.id)}
+                      >
+                        <div>
+                          <h4 className="font-medium">{course.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Instructor: {course.instructor}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </div>
+                    ))}
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => onNavigate('courses')}
+                    >
+                      Browse All Courses
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground mb-4">
+                      You're not enrolled in any courses yet
+                    </p>
+                    <Button onClick={() => onNavigate('courses')}>
+                      Browse Courses
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => onNavigate('courses')}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Manage Courses
+                </Button>
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={() => onNavigate('announcements')}
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  Post Announcement
+                </Button>
+                {user.role === 'admin' && (
                   <Button 
-                    size="sm" 
+                    className="w-full justify-start" 
                     variant="outline"
-                    onClick={() => onNavigate('course-detail', course.id)}
+                    onClick={() => onNavigate('users')}
                   >
-                    View
+                    <Users className="mr-2 h-4 w-4" />
+                    Manage Users
                   </Button>
-                </div>
-              ))}
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={() => onNavigate('courses')}
-              >
-                View All Courses
-              </Button>
-            </div>
-          ) : (
-            <p className="text-muted-foreground">
-              {user?.role === 'student' ? 'You are not enrolled in any courses yet.' :
-               user?.role === 'faculty' ? 'You are not assigned to any courses yet.' :
-               'No courses have been created yet.'}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

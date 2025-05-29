@@ -74,6 +74,7 @@ export interface AuthContextType {
   user: User | null;
   currentUser: any;
   loading: boolean;
+  authError?: string | null;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   switchAccount: (role: 'student' | 'faculty' | 'admin', displayName: string) => Promise<void>;

@@ -11,6 +11,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const generateDisplayName = () => {
     const uuid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36);
@@ -19,10 +20,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async () => {
     try {
+      setAuthError(null);
       const result = await signInAnonymously(auth);
       setCurrentUser(result.user);
-    } catch (error) {
+      return result;
+    } catch (error: any) {
       console.error('Error signing in:', error);
+      setAuthError(error.message || 'Authentication failed');
       throw error;
     }
   };
@@ -32,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await firebaseSignOut(auth);
       setUser(null);
       setCurrentUser(null);
+      setAuthError(null);
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -74,8 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           
           setUser(userProfile);
+          setAuthError(null);
         } catch (error) {
           console.error('Error loading user profile:', error);
+          setAuthError('Failed to load user profile');
         }
       } else {
         setCurrentUser(null);
@@ -88,22 +95,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  // Auto sign-in on app load
-  useEffect(() => {
-    const autoSignIn = async () => {
-      if (!currentUser) {
-        try {
-          await signIn();
-        } catch (error) {
-          console.error('Auto sign-in failed:', error);
-          setLoading(false);
-        }
-      }
-    };
-
-    autoSignIn();
-  }, [currentUser]);
-
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -111,7 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading, 
       signIn, 
       signOut, 
-      switchAccount 
+      switchAccount,
+      authError
     }}>
       {children}
     </AuthContext.Provider>
