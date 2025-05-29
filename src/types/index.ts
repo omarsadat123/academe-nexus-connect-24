@@ -1,73 +1,79 @@
 
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'faculty' | 'student';
-  avatar?: string;
-  createdAt: string;
+  userId: string;
+  role: 'student' | 'faculty' | 'admin';
+  displayName: string;
+  email?: string;
+  createdAt: any; // Firestore Timestamp
 }
 
 export interface Course {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  facultyId: string;
-  facultyName: string;
-  studentIds: string[];
-  resources: Resource[];
-  assignments: Assignment[];
-  announcements: Announcement[];
-  createdAt: string;
-  isActive: boolean;
+  instructorId: string;
+  instructor: string;
+  createdBy: string;
+  createdAt: any; // Firestore Timestamp
 }
 
-export interface Resource {
-  id: string;
-  title: string;
-  type: 'pdf' | 'video' | 'link' | 'document';
-  url: string;
-  description?: string;
-  category?: string;
-  uploadedAt: string;
-  uploadedBy: string;
-}
-
-export interface Assignment {
-  id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  totalPoints: number;
-  submissions: Submission[];
-  createdAt: string;
-}
-
-export interface Submission {
+export interface Enrollment {
   id: string;
   studentId: string;
   studentName: string;
-  submittedAt: string;
-  fileUrl?: string;
-  text?: string;
-  grade?: number;
-  feedback?: string;
+  courseId: string;
+  enrolledAt: any; // Firestore Timestamp
 }
 
 export interface Announcement {
   id: string;
-  title: string;
-  content: string;
+  text: string;
+  timestamp: any; // Firestore Timestamp
   authorId: string;
-  authorName: string;
-  targetRole?: 'admin' | 'faculty' | 'student';
+  author: string;
   courseId?: string;
-  createdAt: string;
+  targetRole?: 'all' | 'student' | 'faculty' | 'admin';
+}
+
+export interface Resource {
+  id: string;
+  courseId: string;
+  title: string;
+  type: 'link' | 'text' | 'video' | 'pdf' | 'slides';
+  content: string;
+  category: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  uploadedAt: any; // Firestore Timestamp
+}
+
+export interface Assignment {
+  id: string;
+  courseId: string;
+  title: string;
+  description: string;
+  dueDate: any; // Firestore Timestamp
+  createdBy: string;
+  createdByName: string;
+  createdAt: any; // Firestore Timestamp
+}
+
+export interface Submission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  courseId: string;
+  submissionText: string;
+  submittedAt: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  register: (userData: Omit<User, 'id' | 'createdAt'>) => Promise<boolean>;
+  currentUser: any; // Firebase User
+  loading: boolean;
+  signIn: () => Promise<void>;
+  signOut: () => void;
+  switchAccount: (role: string, displayName: string) => Promise<void>;
 }

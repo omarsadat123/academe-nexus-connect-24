@@ -1,75 +1,118 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { signInAnonymously, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import { getUser, createUser, updateUser, getAllUsers } from '../services/firestore';
 import { User, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@university.edu',
-    role: 'admin',
-    createdAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '2',
-    name: 'Dr. Sarah Johnson',
-    email: 'sarah.johnson@university.edu',
-    role: 'faculty',
-    createdAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: '3',
-    name: 'John Student',
-    email: 'john.student@university.edu',
-    role: 'student',
-    createdAt: '2024-01-01T00:00:00Z',
-  },
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const generateDisplayName = () => {
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36);
+    return `User ${uuid.substring(0, 8).toUpperCase()}`;
+  };
+
+  const signIn = async () => {
+    try {
+      const result = await signInAnonymously(auth);
+      setCurrentUser(result.user);
+    } catch (error) {
+      console.error('Error signing in:', error);
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      setUser(null);
+      setCurrentUser(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const switchAccount = async (role: string, displayName: string) => {
+    if (!currentUser) return;
+    
+    try {
+      await updateUser(currentUser.uid, { role, displayName });
+      setUser(prev => prev ? { ...prev, role, displayName } : null);
+    } catch (error) {
+      console.error('Error switching account:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setCurrentUser(firebaseUser);
+        
+        try {
+          let userProfile = await getUser(firebaseUser.uid);
+          
+          if (!userProfile) {
+            // Check if this is the first user (should be admin)
+            const allUsers = await getAllUsers();
+            const isFirstUser = allUsers.length === 0;
+            
+            const newUser = {
+              userId: firebaseUser.uid,
+              role: isFirstUser ? 'admin' as const : 'student' as const,
+              displayName: generateDisplayName(),
+              email: firebaseUser.email || undefined
+            };
+            
+            await createUser(newUser);
+            userProfile = { ...newUser, id: firebaseUser.uid, createdAt: new Date() };
+          }
+          
+          setUser(userProfile);
+        } catch (error) {
+          console.error('Error loading user profile:', error);
+        }
+      } else {
+        setCurrentUser(null);
+        setUser(null);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock authentication
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('currentUser', JSON.stringify(foundUser));
-      return true;
-    }
-    return false;
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('currentUser');
-  };
-
-  const register = async (userData: Omit<User, 'id' | 'createdAt'>): Promise<boolean> => {
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+  // Auto sign-in on app load
+  useEffect(() => {
+    const autoSignIn = async () => {
+      if (!currentUser) {
+        try {
+          await signIn();
+        } catch (error) {
+          console.error('Auto sign-in failed:', error);
+          setLoading(false);
+        }
+      }
     };
-    
-    mockUsers.push(newUser);
-    setUser(newUser);
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
-    return true;
-  };
+
+    autoSignIn();
+  }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      currentUser, 
+      loading, 
+      signIn, 
+      signOut, 
+      switchAccount 
+    }}>
       {children}
     </AuthContext.Provider>
   );
