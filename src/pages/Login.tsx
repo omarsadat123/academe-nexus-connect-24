@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { book, users } from 'lucide-react';
+import { Book, Users } from 'lucide-react';
 
 const Login = () => {
   const { login, register } = useAuth();
@@ -89,7 +89,7 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
-            <book className="w-8 h-8 text-primary-foreground" />
+            <Book className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">EduPortal</h1>
           <p className="text-gray-600 dark:text-gray-300">Your Learning Management System</p>

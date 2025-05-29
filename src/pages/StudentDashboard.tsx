@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
-  book, 
-  calendar, 
-  download, 
-  upload,
-  bell
+  Book, 
+  Calendar, 
+  Download, 
+  Upload,
+  Bell
 } from 'lucide-react';
 
 const StudentDashboard = () => {
@@ -27,7 +26,7 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
-            <book className="h-4 w-4 text-muted-foreground" />
+            <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">6</div>
@@ -38,7 +37,7 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Assignments</CardTitle>
-            <calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">4</div>
@@ -49,7 +48,7 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Overall GPA</CardTitle>
-            <calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3.8</div>
@@ -60,7 +59,7 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Unread Announcements</CardTitle>
-            <bell className="h-4 w-4 text-muted-foreground" />
+            <Bell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3</div>
@@ -165,7 +164,7 @@ const StudentDashboard = () => {
                   <p className="text-xs text-muted-foreground">{assignment.course}</p>
                   {!assignment.submitted && (
                     <Button size="sm" variant="outline" className="w-full">
-                      <upload className="w-4 h-4 mr-2" />
+                      <Upload className="w-4 h-4 mr-2" />
                       Submit Assignment
                     </Button>
                   )}
@@ -277,7 +276,7 @@ const StudentDashboard = () => {
                   View Course
                 </Button>
                 <Button size="sm" variant="outline">
-                  <download className="w-4 h-4" />
+                  <Download className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>
@@ -355,7 +354,7 @@ const StudentDashboard = () => {
               {assignment.status === 'pending' ? (
                 <div className="flex space-x-2">
                   <Button size="sm" className="flex-1">
-                    <upload className="w-4 h-4 mr-2" />
+                    <Upload className="w-4 h-4 mr-2" />
                     Submit Assignment
                   </Button>
                   <Button size="sm" variant="outline">

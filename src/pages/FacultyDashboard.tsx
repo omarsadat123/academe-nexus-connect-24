@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  book, 
-  users, 
-  calendar, 
-  upload, 
-  plus,
-  edit,
-  download
+  Book, 
+  Users, 
+  Calendar, 
+  Upload, 
+  Plus,
+  Edit,
+  Download
 } from 'lucide-react';
 
 const FacultyDashboard = () => {
@@ -29,7 +28,7 @@ const FacultyDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">My Courses</CardTitle>
-            <book className="h-4 w-4 text-muted-foreground" />
+            <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
@@ -40,7 +39,7 @@ const FacultyDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">342</div>
@@ -51,7 +50,7 @@ const FacultyDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Assignments</CardTitle>
-            <calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
@@ -62,7 +61,7 @@ const FacultyDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Resources Uploaded</CardTitle>
-            <upload className="h-4 w-4 text-muted-foreground" />
+            <Upload className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">127</div>
@@ -137,7 +136,7 @@ const FacultyDashboard = () => {
           <p className="text-muted-foreground">Manage your course content and students</p>
         </div>
         <Button>
-          <plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           Add Resource
         </Button>
       </div>
@@ -205,13 +204,13 @@ const FacultyDashboard = () => {
                       <div key={idx} className="flex items-center justify-between p-2 border rounded">
                         <span className="text-sm">{resource}</span>
                         <Button variant="ghost" size="sm">
-                          <download className="w-4 h-4" />
+                          <Download className="w-4 h-4" />
                         </Button>
                       </div>
                     ))}
                   </div>
                   <Button variant="outline" className="w-full">
-                    <upload className="w-4 h-4 mr-2" />
+                    <Upload className="w-4 h-4 mr-2" />
                     Upload Resource
                   </Button>
                 </TabsContent>
@@ -226,7 +225,7 @@ const FacultyDashboard = () => {
                     ))}
                   </div>
                   <Button variant="outline" className="w-full">
-                    <plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 mr-2" />
                     Create Assignment
                   </Button>
                 </TabsContent>

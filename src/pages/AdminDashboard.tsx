@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,13 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { 
-  users, 
-  book, 
-  bell, 
-  settings, 
-  plus, 
-  edit, 
-  trash 
+  Users, 
+  Book, 
+  Bell, 
+  Settings, 
+  Plus, 
+  Edit, 
+  Trash 
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -31,7 +30,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,234</div>
@@ -42,7 +41,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Courses</CardTitle>
-            <book className="h-4 w-4 text-muted-foreground" />
+            <Book className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">42</div>
@@ -53,7 +52,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Faculty Members</CardTitle>
-            <users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">156</div>
@@ -64,7 +63,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Students Enrolled</CardTitle>
-            <users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,078</div>
@@ -144,7 +143,7 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground">Manage users, roles, and permissions</p>
         </div>
         <Button>
-          <plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           Add User
         </Button>
       </div>
@@ -181,10 +180,10 @@ const AdminDashboard = () => {
                   </Badge>
                   <div className="flex space-x-2">
                     <Button variant="outline" size="sm">
-                      <edit className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
                     <Button variant="outline" size="sm">
-                      <trash className="w-4 h-4" />
+                      <Trash className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -204,7 +203,7 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground">Create and manage academic courses</p>
         </div>
         <Button>
-          <plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           Create Course
         </Button>
       </div>
@@ -251,11 +250,11 @@ const AdminDashboard = () => {
                 <p className="text-sm"><span className="font-medium">Students:</span> {course.students}</p>
                 <div className="flex space-x-2 pt-4">
                   <Button variant="outline" size="sm" className="flex-1">
-                    <edit className="w-4 h-4 mr-2" />
+                    <Edit className="w-4 h-4 mr-2" />
                     Edit
                   </Button>
                   <Button variant="outline" size="sm">
-                    <trash className="w-4 h-4" />
+                    <Trash className="w-4 h-4" />
                   </Button>
                 </div>
               </div>

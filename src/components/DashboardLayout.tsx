@@ -4,15 +4,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
-  home, 
-  users, 
-  book, 
-  settings, 
-  bell, 
-  search,
-  menu,
-  user,
-  calendar
+  Home, 
+  Users, 
+  Book, 
+  Settings, 
+  Bell, 
+  Search,
+  Menu,
+  User,
+  Calendar
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -28,35 +28,35 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
 
   const getNavigationItems = () => {
     const baseItems = [
-      { id: 'dashboard', label: 'Dashboard', icon: home },
-      { id: 'profile', label: 'Profile', icon: user },
+      { id: 'dashboard', label: 'Dashboard', icon: Home },
+      { id: 'profile', label: 'Profile', icon: User },
     ];
 
     if (user?.role === 'admin') {
       return [
         ...baseItems,
-        { id: 'users', label: 'User Management', icon: users },
-        { id: 'courses', label: 'Course Management', icon: book },
-        { id: 'announcements', label: 'Announcements', icon: bell },
-        { id: 'settings', label: 'Settings', icon: settings },
+        { id: 'users', label: 'User Management', icon: Users },
+        { id: 'courses', label: 'Course Management', icon: Book },
+        { id: 'announcements', label: 'Announcements', icon: Bell },
+        { id: 'settings', label: 'Settings', icon: Settings },
       ];
     }
 
     if (user?.role === 'faculty') {
       return [
         ...baseItems,
-        { id: 'courses', label: 'My Courses', icon: book },
-        { id: 'students', label: 'Students', icon: users },
-        { id: 'announcements', label: 'Announcements', icon: bell },
-        { id: 'calendar', label: 'Calendar', icon: calendar },
+        { id: 'courses', label: 'My Courses', icon: Book },
+        { id: 'students', label: 'Students', icon: Users },
+        { id: 'announcements', label: 'Announcements', icon: Bell },
+        { id: 'calendar', label: 'Calendar', icon: Calendar },
       ];
     }
 
     return [
       ...baseItems,
-      { id: 'courses', label: 'My Courses', icon: book },
-      { id: 'assignments', label: 'Assignments', icon: calendar },
-      { id: 'announcements', label: 'Announcements', icon: bell },
+      { id: 'courses', label: 'My Courses', icon: Book },
+      { id: 'assignments', label: 'Assignments', icon: Calendar },
+      { id: 'announcements', label: 'Announcements', icon: Bell },
     ];
   };
 
@@ -70,7 +70,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
         <div className="p-4 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <book className="w-5 h-5 text-primary-foreground" />
+              <Book className="w-5 h-5 text-primary-foreground" />
             </div>
             {sidebarOpen && (
               <div>
@@ -135,10 +135,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
-                <menu className="w-5 h-5" />
+                <Menu className="w-5 h-5" />
               </Button>
               <div className="relative">
-                <search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   placeholder="Search..." 
                   className="pl-10 w-80"
@@ -147,7 +147,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm">
-                <bell className="w-5 h-5" />
+                <Bell className="w-5 h-5" />
               </Button>
             </div>
           </div>
