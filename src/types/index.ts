@@ -1,82 +1,73 @@
 
 export interface User {
   id: string;
-  userId: string;
-  role: 'student' | 'faculty' | 'admin';
-  displayName: string;
-  email?: string;
-  createdAt: Date;
+  name: string;
+  email: string;
+  role: 'admin' | 'faculty' | 'student';
+  avatar?: string;
+  createdAt: string;
 }
 
 export interface Course {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  instructorId: string;
-  instructor: string;
-  createdBy: string;
-  createdAt: Date;
-}
-
-export interface Enrollment {
-  id: string;
-  studentId: string;
-  studentName: string;
-  courseId: string;
-  enrolledAt: Date;
-}
-
-export interface Announcement {
-  id: string;
-  text: string;
-  timestamp: Date;
-  authorId: string;
-  author: string;
-  courseId?: string;
-  targetRole?: 'all' | 'student' | 'faculty' | 'admin';
+  facultyId: string;
+  facultyName: string;
+  studentIds: string[];
+  resources: Resource[];
+  assignments: Assignment[];
+  announcements: Announcement[];
+  createdAt: string;
+  isActive: boolean;
 }
 
 export interface Resource {
   id: string;
-  courseId: string;
   title: string;
-  type: 'link' | 'text' | 'video' | 'pdf' | 'slides';
-  content: string;
-  category: string;
+  type: 'pdf' | 'video' | 'link' | 'document';
+  url: string;
+  description?: string;
+  category?: string;
+  uploadedAt: string;
   uploadedBy: string;
-  uploadedByName: string;
-  uploadedAt: Date;
 }
 
 export interface Assignment {
   id: string;
-  courseId: string;
   title: string;
   description: string;
-  dueDate: Date;
-  createdBy: string;
-  createdByName: string;
-  createdAt: Date;
+  dueDate: string;
+  totalPoints: number;
+  submissions: Submission[];
+  createdAt: string;
 }
 
 export interface Submission {
   id: string;
-  assignmentId: string;
   studentId: string;
   studentName: string;
-  courseId: string;
-  submissionText: string;
-  submittedAt: Date;
-  updatedAt?: Date;
+  submittedAt: string;
+  fileUrl?: string;
+  text?: string;
+  grade?: number;
+  feedback?: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  targetRole?: 'admin' | 'faculty' | 'student';
+  courseId?: string;
+  createdAt: string;
 }
 
 export interface AuthContextType {
   user: User | null;
-  currentUser: any;
-  loading: boolean;
-  authError?: string | null;
-  signIn: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  switchAccount: (role: 'student' | 'faculty' | 'admin', displayName: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  register: (userData: Omit<User, 'id' | 'createdAt'>) => Promise<boolean>;
 }
