@@ -14,7 +14,7 @@ interface AccountSwitcherModalProps {
 const AccountSwitcherModal: React.FC<AccountSwitcherModalProps> = ({ onClose }) => {
   const { user, switchAccount } = useAuth();
   const [displayName, setDisplayName] = useState(user?.displayName || '');
-  const [role, setRole] = useState(user?.role || 'student');
+  const [role, setRole] = useState<'student' | 'faculty' | 'admin'>(user?.role || 'student');
   const [loading, setLoading] = useState(false);
 
   const handleSwitchAccount = async () => {
@@ -28,6 +28,10 @@ const AccountSwitcherModal: React.FC<AccountSwitcherModalProps> = ({ onClose }) 
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRoleChange = (value: string) => {
+    setRole(value as 'student' | 'faculty' | 'admin');
   };
 
   return (
@@ -50,7 +54,7 @@ const AccountSwitcherModal: React.FC<AccountSwitcherModalProps> = ({ onClose }) 
           
           <div>
             <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={setRole}>
+            <Select value={role} onValueChange={handleRoleChange}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const switchAccount = async (role: string, displayName: string) => {
+  const switchAccount = async (role: 'student' | 'faculty' | 'admin', displayName: string) => {
     if (!currentUser) return;
     
     try {

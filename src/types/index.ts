@@ -1,10 +1,11 @@
 
 export interface User {
+  id: string;
   userId: string;
   role: 'student' | 'faculty' | 'admin';
   displayName: string;
   email?: string;
-  createdAt: any; // Firestore Timestamp
+  createdAt: Date;
 }
 
 export interface Course {
@@ -14,7 +15,7 @@ export interface Course {
   instructorId: string;
   instructor: string;
   createdBy: string;
-  createdAt: any; // Firestore Timestamp
+  createdAt: Date;
 }
 
 export interface Enrollment {
@@ -22,13 +23,13 @@ export interface Enrollment {
   studentId: string;
   studentName: string;
   courseId: string;
-  enrolledAt: any; // Firestore Timestamp
+  enrolledAt: Date;
 }
 
 export interface Announcement {
   id: string;
   text: string;
-  timestamp: any; // Firestore Timestamp
+  timestamp: Date;
   authorId: string;
   author: string;
   courseId?: string;
@@ -44,7 +45,7 @@ export interface Resource {
   category: string;
   uploadedBy: string;
   uploadedByName: string;
-  uploadedAt: any; // Firestore Timestamp
+  uploadedAt: Date;
 }
 
 export interface Assignment {
@@ -52,10 +53,10 @@ export interface Assignment {
   courseId: string;
   title: string;
   description: string;
-  dueDate: any; // Firestore Timestamp
+  dueDate: Date;
   createdBy: string;
   createdByName: string;
-  createdAt: any; // Firestore Timestamp
+  createdAt: Date;
 }
 
 export interface Submission {
@@ -65,15 +66,15 @@ export interface Submission {
   studentName: string;
   courseId: string;
   submissionText: string;
-  submittedAt: any; // Firestore Timestamp
-  updatedAt?: any; // Firestore Timestamp
+  submittedAt: Date;
+  updatedAt?: Date;
 }
 
 export interface AuthContextType {
   user: User | null;
-  currentUser: any; // Firebase User
+  currentUser: any;
   loading: boolean;
   signIn: () => Promise<void>;
-  signOut: () => void;
-  switchAccount: (role: string, displayName: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  switchAccount: (role: 'student' | 'faculty' | 'admin', displayName: string) => Promise<void>;
 }
